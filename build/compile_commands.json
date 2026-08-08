@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/Users/sahil/Developer/C++/torrent client /build",
+  "command": "/usr/bin/c++  -I\"/Users/sahil/Developer/C++/torrent client /include\" -g -std=gnu++20 -arch arm64 -o CMakeFiles/qtorr.dir/src/main.cpp.o -c \"/Users/sahil/Developer/C++/torrent client /src/main.cpp\"",
+  "file": "/Users/sahil/Developer/C++/torrent client /src/main.cpp",
+  "output": "CMakeFiles/qtorr.dir/src/main.cpp.o"
+},
+{
+  "directory": "/Users/sahil/Developer/C++/torrent client /build",
+  "command": "/usr/bin/c++  -I\"/Users/sahil/Developer/C++/torrent client /include\" -g -std=gnu++20 -arch arm64 -o CMakeFiles/qtorr.dir/src/bencode.cpp.o -c \"/Users/sahil/Developer/C++/torrent client /src/bencode.cpp\"",
+  "file": "/Users/sahil/Developer/C++/torrent client /src/bencode.cpp",
+  "output": "CMakeFiles/qtorr.dir/src/bencode.cpp.o"
+}
+]
