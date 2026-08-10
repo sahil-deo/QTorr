@@ -7,6 +7,45 @@ BValue BencodeParser::Encode(FileData &file_data)
     return BValue();
 }
 
+std::string BencodeParser::GetHashInfo(BValue &decoded)
+{
+    BValue info = GetKey(decoded, "info");
+    return EncodeFromBValue(info);
+}
+
+std::string BencodeParser::GetTrackerUrl(BValue &decoded)
+{
+    std::string trackerUrl;
+    for (auto &e : std::get<std::map<std::string, BValue>>(decoded))
+    {
+        if (e.first == "announce")
+        {
+            return std::get<std::string>(e.second);
+        }
+    }
+    return "";
+}
+
+BValue BencodeParser::GetKey(BValue decoded, std::string key)
+{
+    std::string trackerUrl;
+    if (!std::holds_alternative<std::map<std::string, BValue>>(decoded))
+    {
+        std::cout << "NOT A DICT\n";
+        abort();
+    }
+
+    for (auto &e : std::get<std::map<std::string, BValue>>(decoded))
+    {
+        if (e.first == key)
+        {
+            return e.second;
+        }
+    }
+    std::cout << "KEY NOT FOUND: " << key << "\n";
+    abort();
+}
+
 std::string BencodeParser::EncodeFromBValue(BValue &file_data)
 {
     std::string result{};
@@ -33,10 +72,10 @@ std::string BencodeParser::EncodeFromBValue(BValue &file_data)
         }
         result += "e";
     }
-    else if (std::holds_alternative<int>(file_data))
+    else if (std::holds_alternative<long long>(file_data))
     {
         result += "i";
-        result += std::to_string(std::get<int>(file_data));
+        result += std::to_string(std::get<long long>(file_data));
         result += "e";
     }
     else if (std::holds_alternative<std::string>(file_data))
@@ -55,7 +94,7 @@ BValue BencodeParser::Decode(FileData &file_data)
     BValue result{};
     std::string current_number = {};
 
-    int n{};
+    long long n{};
 
     if (current == 'i') // integer
     {
@@ -68,9 +107,9 @@ BValue BencodeParser::Decode(FileData &file_data)
             file_data.current_position++;
             current = file_data.file[file_data.current_position];
         }
-        n = std::stoi(current_number);
+        n = std::stoll(current_number);
         file_data.current_position++;
-        result.emplace<int>(n);
+        result.emplace<long long>(n);
     }
     else if (current == 'd') // dict
     {
@@ -165,9 +204,9 @@ void BencodeParser::Read(BValue &decoded)
             std::cout << std::endl;
         }
     }
-    else if (std::holds_alternative<int>(decoded)) // int
+    else if (std::holds_alternative<long long>(decoded)) // int
     {
-        std::cout << std::get<int>(decoded) << std::endl;
+        std::cout << std::get<long long>(decoded) << std::endl;
     }
     else if (std::holds_alternative<std::string>(decoded)) // string
     {
@@ -175,7 +214,7 @@ void BencodeParser::Read(BValue &decoded)
     }
 }
 
-void BencodeParser::CheckBound(int file_size, int current_position, int n)
+void BencodeParser::CheckBound(long long file_size, int current_position, int n)
 {
     if (current_position + 1 + n > file_size)
     {

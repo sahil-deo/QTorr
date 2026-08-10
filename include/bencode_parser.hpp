@@ -6,17 +6,8 @@
 #include <map>
 #include "log.hpp"
 
-struct BValue : std::variant<int, std::string, std::vector<BValue>, std::map<std::string, BValue>>
+struct BValue : std::variant<long long, std::string, std::vector<BValue>, std::map<std::string, BValue>>
 {
-    void PrintInt()
-    {
-        std::cout << std::get<int>(*this) << std::endl;
-    }
-
-    void PrintStr()
-    {
-        std::cout << std::get<std::string>(*this) << std::endl;
-    }
 };
 
 struct FileData
@@ -36,12 +27,17 @@ public:
 
     BValue Encode(FileData &file_data);
 
-    std::string EncodeFromBValue(BValue &file_data);
+    std::string GetHashInfo(BValue &decoded);
+
+    std::string GetTrackerUrl(BValue &decoded);
+
+    BValue GetKey(BValue decoded, std::string key);
 
     BValue Decode(FileData &file_data);
 
     void Read(BValue &decoded);
 
 private:
-    void CheckBound(int file_size, int current_position, int n);
+    std::string EncodeFromBValue(BValue &file_data);
+    void CheckBound(long long file_size, int current_position, int n);
 };
