@@ -36,6 +36,8 @@ public:
 
     BValue Encode(FileData &file_data);
 
+    std::string EncodeFromBValue(BValue &file_data);
+
     BValue Decode(FileData &file_data);
 
     void Read(BValue &decoded);

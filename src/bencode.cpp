@@ -7,11 +7,53 @@ BValue BencodeParser::Encode(FileData &file_data)
     return BValue();
 }
 
+std::string BencodeParser::EncodeFromBValue(BValue &file_data)
+{
+    std::string result{};
+
+    if (std::holds_alternative<std::map<std::string, BValue>>(file_data))
+    {
+        result += "d";
+        for (auto &e : std::get<std::map<std::string, BValue>>(file_data))
+        {
+            std::string s = e.first;
+            result += std::to_string(s.size());
+            result += ":";
+            result += s;
+            result += EncodeFromBValue(e.second);
+        }
+        result += "e";
+    }
+    else if (std::holds_alternative<std::vector<BValue>>(file_data))
+    {
+        result += "l";
+        for (auto &e : std::get<std::vector<BValue>>(file_data))
+        {
+            result += EncodeFromBValue(e);
+        }
+        result += "e";
+    }
+    else if (std::holds_alternative<int>(file_data))
+    {
+        result += "i";
+        result += std::to_string(std::get<int>(file_data));
+        result += "e";
+    }
+    else if (std::holds_alternative<std::string>(file_data))
+    {
+        std::string s = std::get<std::string>(file_data);
+        result += std::to_string(s.size());
+        result += ":";
+        result += s;
+    }
+    return result;
+}
+
 BValue BencodeParser::Decode(FileData &file_data)
 {
     char current = file_data.file[file_data.current_position];
-    BValue result;
-    std::string current_number = "";
+    BValue result{};
+    std::string current_number = {};
 
     int n{};
 
@@ -35,15 +77,14 @@ BValue BencodeParser::Decode(FileData &file_data)
         file_data.current_position++;
         current = file_data.file[file_data.current_position];
 
-        std::string key;
-        BValue value;
-        std::map<std::string, BValue> mp;
+        std::string key{};
+        BValue value{};
+        std::map<std::string, BValue> mp{};
 
         while (current != 'e')
         {
             key = std::get<std::string>(Decode(file_data));
             value = Decode(file_data);
-            std::cout << key << "\n";
             mp[key] = value;
             current = file_data.file[file_data.current_position];
         }
@@ -52,11 +93,11 @@ BValue BencodeParser::Decode(FileData &file_data)
     }
     else if (current == 'l') // list
     {
-        std::vector<BValue> vec;
+        std::vector<BValue> vec{};
 
         file_data.current_position++;
         current = file_data.file[file_data.current_position];
-        BValue value;
+        BValue value{};
         while (current != 'e')
         {
             value = Decode(file_data);
@@ -107,7 +148,7 @@ BValue BencodeParser::Decode(FileData &file_data)
 
 void BencodeParser::Read(BValue &decoded)
 {
-    if (std::holds_alternative<std::map<std::string, BValue>>(decoded))
+    if (std::holds_alternative<std::map<std::string, BValue>>(decoded)) // map
     {
         for (auto &e : std::get<std::map<std::string, BValue>>(decoded))
         {
@@ -116,7 +157,7 @@ void BencodeParser::Read(BValue &decoded)
             std::cout << std::endl;
         }
     }
-    else if (std::holds_alternative<std::vector<BValue>>(decoded))
+    else if (std::holds_alternative<std::vector<BValue>>(decoded)) // list
     {
         for (auto &e : std::get<std::vector<BValue>>(decoded))
         {
@@ -124,11 +165,11 @@ void BencodeParser::Read(BValue &decoded)
             std::cout << std::endl;
         }
     }
-    else if (std::holds_alternative<int>(decoded))
+    else if (std::holds_alternative<int>(decoded)) // int
     {
         std::cout << std::get<int>(decoded) << std::endl;
     }
-    else if (std::holds_alternative<std::string>(decoded))
+    else if (std::holds_alternative<std::string>(decoded)) // string
     {
         std::cout << std::get<std::string>(decoded) << std::endl;
     }
