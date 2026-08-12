@@ -32,17 +32,18 @@ int main(int argc, char **argv)
     std::string pid = EncodeHash(GeneratePeerId());
     std::string encoded_info_hash = EncodeHash(info_hash);
     std::string len = std::to_string(std::get<long long>(bp.GetKey(bp.GetKey(result, "info"), "length")));
-    std::string port = "9999";
+    std::string port = "9000";
     std::string url = tracker_url + "?info_hash=" + encoded_info_hash + "&peer_id=" + pid + "&port=" + port + "&uploaded=0&downloaded=0" + "&left=" + len + "&compact=1&event=started";
 
     // make a get call
-    PrintMessage(url);
+
     std::string response = Get(url);
-    PrintMessage(response);
 
-    // accept response
-
+    FileData responseFile(response);
     // parse the response
+    BValue parsedResponse = bp.Decode(responseFile);
+
+    bp.Read(parsedResponse);
 
     return 0;
 }
